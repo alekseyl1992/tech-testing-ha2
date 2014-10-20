@@ -19,7 +19,7 @@ class TestSuite(unittest.TestCase):
     def tearDown(self):
         self.driver.quit()
 
-    def test(self):
+    def get_create_page(self):
         USERNAME = 'tech-testing-ha2-17@bk.ru'
         PASSWORD = os.environ['TTHA2PASSWORD']
         DOMAIN = '@bk.ru'
@@ -35,33 +35,29 @@ class TestSuite(unittest.TestCase):
 
         create_page = CreatePage(self.driver)
         create_page.open()
-        create_page.ad_form.set_fields(age=[10, 20],
-                                       work_time=['29.10.2014', '31.10.2014'])
+
+        return create_page
+
+    def test_age(self):
+        create_page = self.get_create_page().wait()
+        create_page.organization_form.configure()
+        create_page.ad_form.configure()
+
+        expected_age_min = 18
+        expected_age_max = 30
+
+        create_page.ad_form.set_age(expected_age_min,
+                                    expected_age_max)
         
         info_page = create_page.ad_form.submit()
-
-
         edit_page = info_page.edit_page()
+
+        time.sleep(10)
 
         # asserts here
 
-        email = create_page.top_menu.get_email()
+        # email = create_page.top_menu.get_email()
 
         # time.sleep(5)
 
-        self.assertEqual(USERNAME, email)
-
-        # ## And some examples
-        # create_page.slider.move(100)
-        # FILE_PATH = '/Users/bayandin/repos/tech-testing-selenium-demo/img.jpg'
-        # element = WebDriverWait(self.driver, 30, 0.1).until(
-        #     lambda d: d.find_element_by_css_selector('.banner-form__img-file')
-        # )
-        #
-        # element.send_keys(FILE_PATH)
-
-        # os.path.dirname(os.path.abspath(__file__)) // path to script
-        # os.getcwd() // cwd
-        # + 'logo.png'
-
-        market_link = 'https://play.google.com/store/apps/details?id=com.maxmpz.audioplayer'
+        # self.assertEqual(USERNAME, email)
