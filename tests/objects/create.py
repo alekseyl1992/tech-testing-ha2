@@ -1,7 +1,9 @@
 import os
 
 from selenium.webdriver.support.wait import WebDriverWait
-from tests.objects.abstract import Form, Page, Component
+import time
+
+from tests.objects.abstract import Form, Page, Component, Polling
 
 
 class CreatePage(Page):
@@ -29,7 +31,7 @@ class TopMenu(Component):
     EMAIL = '#PH_user-email'
 
     def get_email(self):
-        return WebDriverWait(self.driver, 30, 0.1).until(
+        return WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.EMAIL).text
         )
 
@@ -38,7 +40,7 @@ class Slider(Component):
     SLIDER = '.price-slider__begunok'
 
     def move(self, offset):
-        element = WebDriverWait(self.driver, 30, 0.1).until(
+        element = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.SLIDER)
         )
         ac = ActionChains(self.driver)
@@ -57,7 +59,7 @@ class OrganizationCreateForm(Form):
         pass
 
     def wait(self):
-        WebDriverWait(self.driver, 30, 0.1).until(
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.COMPANY_INPUT)
         )
 
@@ -75,6 +77,7 @@ class OrganizationCreateForm(Form):
 
 class AdCreateForm(Form):
     IMAGE_INPUT = '.banner-form__img-file'
+    IMAGE_PREVIEW = '.banner-preview__img'
     MARKET_INPUT = 'div.banner-form__body > ul > li:nth-child(4) > span.banner-form__input-wrapper > input'
     SUBMIT = '.main-button__label'
 
@@ -92,24 +95,24 @@ class AdCreateForm(Form):
         self.slider = Slider(self.driver)
 
     def wait(self):
-        # WebDriverWait(self.driver, 30, 0.1)\
+        # WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
         #     .until(expected_conditions
         #            .visibility_of(self.driver
         #                           .find_element_by_css_selector(self.MARKET_INPUT)))
 
-        WebDriverWait(self.driver, 30, 0.1).until(
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.MARKET_INPUT)
         )
 
     def set_restriction(self, restriction):
         self.driver.find_element_by_xpath(self.RESTRICTION_LINE).click()
 
-        el = WebDriverWait(self.driver, 30, 0.1).until(
+        el = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_xpath(self.RESTRICTION_RADIO % restriction)
         )
         el.click()
 
-        label = WebDriverWait(self.driver, 30, 0.1).until(
+        label = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_xpath(self.RESTRICTION_LABEL % restriction)
         )
         return label.text
@@ -126,12 +129,19 @@ class AdCreateForm(Form):
         pass
 
     def set_image(self, file_name):
-        element = WebDriverWait(self.driver, 30, 0.1).until(
+        element = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.IMAGE_INPUT)
         )
 
         file_path = os.path.dirname(os.path.abspath(__file__)) + '/' + file_name
         element.send_keys(file_path)
+
+        # wait for it to be loaded
+        preview_el = self.driver.find_element_by_css_selector(self.IMAGE_PREVIEW)
+
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
+            lambda d: preview_el.value_of_css_property('display') == 'block'
+        )
 
     def set_market_link(self, market_link):
         self.driver.find_element_by_css_selector(self.MARKET_INPUT).send_keys(market_link)

@@ -32,3 +32,10 @@ class Form(Component):
     def submit(self):
         raise NotImplementedError()
 
+
+class Polling:
+    def __init__(self):
+        pass
+
+    TIMEOUT = 30
+    PERIOD = 0.1

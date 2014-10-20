@@ -1,5 +1,5 @@
 from selenium.webdriver.support.wait import WebDriverWait
-from tests.objects.abstract import Page
+from tests.objects.abstract import Page, Polling
 from tests.objects.edit import AdEditPage
 
 
@@ -10,7 +10,7 @@ class InfoPage(Page):
         super(InfoPage, self).__init__(driver)
 
     def wait(self):
-        WebDriverWait(self.driver, 30, 0.1).until(
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.EDIT_LINK)
         )
 

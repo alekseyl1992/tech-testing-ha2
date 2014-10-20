@@ -49,18 +49,23 @@ class TestSuite(unittest.TestCase):
 
         self.assertEquals(expected_restriction_text, restriction_line_text)
 
+    def _test_restriction_on_edit_page(self, restriction):
+        create_page = self.get_create_page().wait().configure()
 
-    # def test_restriction_none(self):
-    #     create_page = self.get_create_page().wait().configure()
-    #
-    #     expected_restriction = create_page.ad_form.RESTRICTION_NONE
-    #     expected_restriction_text = create_page.ad_form.set_restriction(expected_restriction)
-    #
-    #     info_page = create_page.ad_form.submit()
-    #     edit_page = info_page.edit_page()
-    #
-    #     actual_restriction = edit_page.get_restriction_id()
-    #     actual_restriction_text = edit_page.get_restriction_text()
-    #
-    #     self.assertEquals(expected_restriction, actual_restriction)
-    #     self.assertEquals(expected_restriction_text, actual_restriction_text)
+        expected_restriction_text = create_page.ad_form.set_restriction(restriction)
+
+        #time.sleep(5)
+
+        info_page = create_page.ad_form.submit()
+        edit_page = info_page.edit_page()
+
+        actual_restriction_text = edit_page.ad_form.get_restriction_line_text()
+
+        self.assertTrue(edit_page.ad_form.is_restriction_selected(restriction))
+        self.assertEquals(expected_restriction_text, actual_restriction_text)
+
+    def test_restriction_none_on_edit_page(self):
+        self._test_restriction_on_edit_page('')
+
+    def test_restriction_16_on_edit_page(self):
+        self._test_restriction_on_edit_page('16+')
