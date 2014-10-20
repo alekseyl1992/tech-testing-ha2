@@ -4,7 +4,7 @@ from tests.objects.edit import AdEditPage
 
 
 class InfoPage(Page):
-    EDIT_LINK = '.control__link control__link_edit'
+    EDIT_LINK = '.control__link_edit'
 
     def __init__(self, driver):
         super(InfoPage, self).__init__(driver)

@@ -2,6 +2,7 @@ import os
 import unittest
 
 from selenium.webdriver import DesiredCapabilities, Remote
+import time
 
 from tests.objects.auth import AuthPage
 from tests.objects.create import CreatePage
@@ -38,26 +39,28 @@ class TestSuite(unittest.TestCase):
 
         return create_page
 
-    def test_age(self):
-        create_page = self.get_create_page().wait()
-        create_page.organization_form.configure()
-        create_page.ad_form.configure()
+    def test_restriction_line_changes(self):
+        create_page = self.get_create_page().wait().configure()
 
-        expected_age_min = 18
-        expected_age_max = 30
+        expected_restriction = '18+'
+        expected_restriction_text = create_page.ad_form.set_restriction(expected_restriction)
 
-        create_page.ad_form.set_age(expected_age_min,
-                                    expected_age_max)
-        
-        info_page = create_page.ad_form.submit()
-        edit_page = info_page.edit_page()
+        restriction_line_text = create_page.ad_form.get_restriction_line_text()
 
-        time.sleep(10)
+        self.assertEquals(expected_restriction_text, restriction_line_text)
 
-        # asserts here
 
-        # email = create_page.top_menu.get_email()
-
-        # time.sleep(5)
-
-        # self.assertEqual(USERNAME, email)
+    # def test_restriction_none(self):
+    #     create_page = self.get_create_page().wait().configure()
+    #
+    #     expected_restriction = create_page.ad_form.RESTRICTION_NONE
+    #     expected_restriction_text = create_page.ad_form.set_restriction(expected_restriction)
+    #
+    #     info_page = create_page.ad_form.submit()
+    #     edit_page = info_page.edit_page()
+    #
+    #     actual_restriction = edit_page.get_restriction_id()
+    #     actual_restriction_text = edit_page.get_restriction_text()
+    #
+    #     self.assertEquals(expected_restriction, actual_restriction)
+    #     self.assertEquals(expected_restriction_text, actual_restriction_text)
