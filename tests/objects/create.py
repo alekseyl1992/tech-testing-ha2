@@ -75,7 +75,7 @@ class AdCreateForm(Form):
     DATE_PICKER_YEAR = '.ui-datepicker-year'
     DATE_PICKER_DAY = '//*[@class=\'ui-datepicker-calendar\']//td/a[text()=%s]'
 
-    IMAGE_FILE = '../../img/logo.png'
+    IMAGE_FILE = '../../img/logo_new.png'
     MARKET_LINK = 'https://play.google.com/store/apps/details?id=com.maxmpz.audioplayer'
 
     def __init__(self, driver):
@@ -87,11 +87,16 @@ class AdCreateForm(Form):
         )
 
     def set_restriction(self, restriction):
-        self.driver.find_element_by_xpath(self.RESTRICTION_LINE).click()
+        restriction_line = self.driver.find_element_by_xpath(self.RESTRICTION_LINE)
+        self.uncollapse_element(restriction_line)
 
         el = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_xpath(self.RESTRICTION_RADIO % restriction)
         )
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
+            .until(expected_conditions
+                   .visibility_of(el))
+
         el.click()
 
         label = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
@@ -139,17 +144,21 @@ class AdCreateForm(Form):
         # unfocus inputs
         line_el.click()
 
-    def set_work_time_by_date_picker(self, xpath, month, year, day):
+    def get_date_picker(self, xpath):
         line_el = self.driver.find_element_by_xpath(self.WORK_TIME_LINE)
         self.uncollapse_element(line_el)
 
         input_el = self.driver.find_element_by_xpath(xpath)
-
         WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
             .until(expected_conditions
                    .visibility_of(input_el))
 
         input_el.click()  # show date picker
+
+        return DatePicker(self.driver)
+
+    def set_work_time_by_date_picker(self, xpath, month, year, day):
+        date_picker = self.get_date_picker(xpath)
 
         date_picker_month = self.driver.find_element_by_css_selector(self.DATE_PICKER_MONTH)
         Select(date_picker_month).select_by_value(month)
@@ -161,6 +170,7 @@ class AdCreateForm(Form):
         day_picker_day.click()
 
         # collapse to default state
+        line_el = self.driver.find_element_by_xpath(self.WORK_TIME_LINE)
         line_el.click()
 
     def set_image(self, file_name):
@@ -192,3 +202,20 @@ class AdCreateForm(Form):
         from tests.objects.info import InfoPage
         return InfoPage(self.driver).wait()
 
+
+class DatePicker(Component):
+    MONTH_SELECT = '.ui-datepicker-month'
+
+    PREV_ARROW = '.ui-datepicker-prev'
+    NEXT_ARROW = '.ui-datepicker-next'
+
+    def press_prev_arrow(self):
+        self.driver.find_element_by_css_selector(self.PREV_ARROW).click()
+
+    def press_next_arrow(self):
+        self.driver.find_element_by_css_selector(self.NEXT_ARROW).click()
+
+    def get_month(self):
+        return Select(self.driver
+                      .find_element_by_css_selector(self.MONTH_SELECT))\
+            .first_selected_option.get_attribute('value')

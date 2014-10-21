@@ -1,6 +1,4 @@
 import os
-#from tests.objects.auth import AuthPage
-#from tests.objects.create import CreatePage
 
 DEFAULT_BROWSER = 'CHROME'
 GRID_URL = 'http://127.0.0.1:4444/wd/hub'

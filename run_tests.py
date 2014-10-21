@@ -8,7 +8,7 @@ from tests.work_time_suite import WorkTimeSuite
 
 if __name__ == '__main__':
     suite = unittest.TestSuite((
-        #unittest.makeSuite(RestrictionSuite),
+        unittest.makeSuite(RestrictionSuite),
         unittest.makeSuite(WorkTimeSuite),
     ))
     result = unittest.TextTestRunner().run(suite)
