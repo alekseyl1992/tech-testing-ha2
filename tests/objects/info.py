@@ -1,5 +1,7 @@
 from selenium.webdriver.support.wait import WebDriverWait
-from tests.objects.abstract import Page, Polling
+from tests import common
+from tests.objects.abstract import Page
+from tests.common import Polling
 from tests.objects.edit import AdEditPage
 
 
@@ -12,16 +14,9 @@ class InfoPage(Page):
     def __init__(self, driver):
         super(InfoPage, self).__init__(driver)
 
-    def wait(self):
-        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
-            lambda d: d.find_element_by_css_selector(self.EDIT_LINK)
-        )
-
-        return self
-
     def edit_page(self):
-        self.driver.find_element_by_css_selector(self.EDIT_LINK).click()
-        return AdEditPage(self.driver).wait()
+        common.wait_and_get_by_css(self.driver, self.EDIT_LINK).click()
+        return AdEditPage(self.driver)
 
     def delete(self):
         self.driver.get(self.BASE_URL + self.PATH)  # ensure we are at campaign list

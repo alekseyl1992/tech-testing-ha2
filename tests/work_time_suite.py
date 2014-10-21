@@ -18,7 +18,7 @@ class WorkTimeSuite(unittest.TestCase):
             desired_capabilities=getattr(DesiredCapabilities, browser).copy()
         )
 
-        self.create_page = common.get_create_page(self.driver).wait()
+        self.create_page = common.get_create_page(self.driver)
 
     def tearDown(self):
         self.driver.quit()

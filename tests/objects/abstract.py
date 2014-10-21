@@ -12,9 +12,6 @@ class Page(object):
         url = urlparse.urljoin(self.BASE_URL, self.PATH)
         self.driver.get(url)
 
-    def wait(self):
-        raise NotImplementedError()
-
 
 class Component(object):
     def __init__(self, driver):
@@ -31,11 +28,3 @@ class Form(Component):
 
     def submit(self):
         raise NotImplementedError()
-
-
-class Polling:
-    def __init__(self):
-        pass
-
-    TIMEOUT = 30
-    PERIOD = 0.1

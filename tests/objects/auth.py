@@ -1,4 +1,5 @@
 from selenium.webdriver.support.select import Select
+from tests import common
 from tests.objects.abstract import Page, Component
 
 
@@ -17,14 +18,14 @@ class AuthForm(Component):
     SUBMIT = '#gogogo>input'
 
     def set_login(self, login):
-        self.driver.find_element_by_css_selector(self.LOGIN).send_keys(login)
+        common.wait_and_get_by_css(self.driver, self.LOGIN).send_keys(login)
 
     def set_password(self, pwd):
-        self.driver.find_element_by_css_selector(self.PASSWORD).send_keys(pwd)
+        common.wait_and_get_by_css(self.driver, self.PASSWORD).send_keys(pwd)
 
     def set_domain(self, domain):
-        select = self.driver.find_element_by_css_selector(self.DOMAIN)
+        select = common.wait_and_get_by_css(self.driver, self.DOMAIN)
         Select(select).select_by_visible_text(domain)
 
     def submit(self):
-        self.driver.find_element_by_css_selector(self.SUBMIT).click()
+        common.wait_and_get_by_css(self.driver, self.SUBMIT).click()
