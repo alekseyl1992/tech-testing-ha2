@@ -43,8 +43,11 @@ class RestrictionSuite(unittest.TestCase):
         edit_page = info_page.edit_page()
 
         actual_restriction_text = edit_page.ad_form.get_restriction_line_text()
+        is_restriction_selected = edit_page.ad_form.is_restriction_selected(restriction)
 
-        self.assertTrue(edit_page.ad_form.is_restriction_selected(restriction))
+        info_page.delete()
+
+        self.assertTrue(is_restriction_selected)
         self.assertEquals(expected_restriction_text, actual_restriction_text)
 
     def test_restriction_none_saved(self):

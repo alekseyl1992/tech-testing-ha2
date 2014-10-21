@@ -23,20 +23,75 @@ class WorkTimeSuite(unittest.TestCase):
     def tearDown(self):
         self.driver.quit()
 
-    def test_work_time_line_changes_by_input(self):
+    # def test_work_time_line_changes_by_input(self):
+    #     """
+    #     Tests work time line visual changes (without sending)
+    #     (using keyboard input)
+    #     """
+    #
+    #     from_time = '20.10.2014'
+    #     to_time = '25.10.2014'
+    #     days_count = 6
+    #
+    #     self.create_page.ad_form.set_work_time_by_input(from_time, to_time)
+    #
+    #     text = self.create_page.ad_form.get_work_time_line_text()
+    #     actual_days_count = int(text.split()[0])
+    #
+    #     self.assertEquals(days_count, actual_days_count)
+    #
+    # def test_work_time_line_changes_by_date_picker(self):
+    #     """
+    #     Tests work time line visual changes (without sending)
+    #     (using date picker)
+    #     """
+    #
+    #     month_from = '11'
+    #     year_from = '2014'
+    #     day_from = '01'
+    #
+    #     month_to = '11'
+    #     year_to = '2014'
+    #     day_to = '31'
+    #
+    #     days_count = 31
+    #
+    #     self.create_page.ad_form\
+    #         .set_work_time_by_date_picker(self.create_page.ad_form.WORK_TIME_DATE_FROM,
+    #                                       month_from,
+    #                                       year_from,
+    #                                       day_from)
+    #
+    #     self.create_page.ad_form\
+    #         .set_work_time_by_date_picker(self.create_page.ad_form.WORK_TIME_DATE_TO,
+    #                                       month_to,
+    #                                       year_to,
+    #                                       day_to)
+    #
+    #     text = self.create_page.ad_form.get_work_time_line_text()
+    #     actual_days_count = int(text.split()[0])
+    #
+    #     self.assertEquals(days_count, actual_days_count)
+
+    def test_work_time_saved(self):
+        """
+        Tests work time in edit page
+        """
+
+        self.create_page.configure()
+
         from_time = '20.10.2014'
         to_time = '25.10.2014'
         days_count = 6
 
         self.create_page.ad_form.set_work_time_by_input(from_time, to_time)
 
-        text = self.create_page.ad_form.get_work_time_line_text()
+        info_page = self.create_page.ad_form.submit()
+        edit_page = info_page.edit_page()
+
+        text = edit_page.ad_form.get_work_time_line_text()
         actual_days_count = int(text.split()[0])
 
-        self.assertEquals(days_count, actual_days_count)
+        info_page.delete()
 
-    # def test_work_time_line_changes_by_date_picker(self):
-    #     pass
-    #
-    # def test_work_time_saved(self):
-    #     pass
+        self.assertEquals(days_count, actual_days_count)

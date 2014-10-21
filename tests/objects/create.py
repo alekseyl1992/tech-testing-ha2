@@ -1,6 +1,7 @@
 import os
 from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.support import expected_conditions
+from selenium.webdriver.support.select import Select
 
 from selenium.webdriver.support.wait import WebDriverWait
 import time
@@ -70,6 +71,10 @@ class AdCreateForm(Form):
     WORK_TIME_DATE_FROM = '//input[@data-name=\'from\']'
     WORK_TIME_DATE_TO = '//input[@data-name=\'to\']'
 
+    DATE_PICKER_MONTH = '.ui-datepicker-month'
+    DATE_PICKER_YEAR = '.ui-datepicker-year'
+    DATE_PICKER_DAY = '//*[@class=\'ui-datepicker-calendar\']//td/a[text()=%s]'
+
     IMAGE_FILE = '../../img/logo.png'
     MARKET_LINK = 'https://play.google.com/store/apps/details?id=com.maxmpz.audioplayer'
 
@@ -106,21 +111,23 @@ class AdCreateForm(Form):
         text = self.driver.find_element_by_xpath(self.WORK_TIME_LINE).text
         return text
 
-    def set_work_time_by_input(self, from_time, to_time):
-        line_el = self.driver.find_element_by_xpath(self.WORK_TIME_LINE)
-        from_el = self.driver.find_element_by_xpath(self.WORK_TIME_DATE_FROM)
-        to_el = self.driver.find_element_by_xpath(self.WORK_TIME_DATE_TO)
-
-        # uncollapse and wait for visibility
+    def uncollapse_element(self, element):
         def uncollapse(driver):
             try:
-                line_el.click()
+                element.click()
                 return True
             except WebDriverException:
                 return False
 
         WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
             .until(uncollapse)
+
+    def set_work_time_by_input(self, from_time, to_time):
+        line_el = self.driver.find_element_by_xpath(self.WORK_TIME_LINE)
+        self.uncollapse_element(line_el)
+
+        from_el = self.driver.find_element_by_xpath(self.WORK_TIME_DATE_FROM)
+        to_el = self.driver.find_element_by_xpath(self.WORK_TIME_DATE_TO)
 
         WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
             .until(expected_conditions
@@ -132,8 +139,29 @@ class AdCreateForm(Form):
         # unfocus inputs
         line_el.click()
 
-    def set_work_time_by_date_picker(self, from_time, to_time):
-        pass
+    def set_work_time_by_date_picker(self, xpath, month, year, day):
+        line_el = self.driver.find_element_by_xpath(self.WORK_TIME_LINE)
+        self.uncollapse_element(line_el)
+
+        input_el = self.driver.find_element_by_xpath(xpath)
+
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
+            .until(expected_conditions
+                   .visibility_of(input_el))
+
+        input_el.click()  # show date picker
+
+        date_picker_month = self.driver.find_element_by_css_selector(self.DATE_PICKER_MONTH)
+        Select(date_picker_month).select_by_value(month)
+
+        date_picker_year = self.driver.find_element_by_css_selector(self.DATE_PICKER_YEAR)
+        Select(date_picker_year).select_by_value(year)
+
+        day_picker_day = self.driver.find_element_by_xpath(self.DATE_PICKER_DAY % day)
+        day_picker_day.click()
+
+        # collapse to default state
+        line_el.click()
 
     def set_image(self, file_name):
         element = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
