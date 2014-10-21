@@ -1,4 +1,6 @@
 import os
+from selenium.common.exceptions import WebDriverException
+from selenium.webdriver.support import expected_conditions
 
 from selenium.webdriver.support.wait import WebDriverWait
 import time
@@ -12,7 +14,6 @@ class CreatePage(Page):
     def __init__(self, driver):
         super(CreatePage, self).__init__(driver)
 
-        self.top_menu = TopMenu(self.driver)
         self.organization_form = OrganizationCreateForm(self.driver)
         self.ad_form = AdCreateForm(self.driver)
 
@@ -25,26 +26,6 @@ class CreatePage(Page):
         self.organization_form.configure()
         self.ad_form.configure()
         return self
-
-
-class TopMenu(Component):
-    EMAIL = '#PH_user-email'
-
-    def get_email(self):
-        return WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
-            lambda d: d.find_element_by_css_selector(self.EMAIL).text
-        )
-
-
-class Slider(Component):
-    SLIDER = '.price-slider__begunok'
-
-    def move(self, offset):
-        element = WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
-            lambda d: d.find_element_by_css_selector(self.SLIDER)
-        )
-        ac = ActionChains(self.driver)
-        ac.click_and_hold(element).move_by_offset(offset, 0).perform()
 
 
 class OrganizationCreateForm(Form):
@@ -82,9 +63,12 @@ class AdCreateForm(Form):
     SUBMIT = '.main-button__label'
 
     RESTRICTION_LINE = '//*[@data-node-id=\'restrict\']'
-
     RESTRICTION_RADIO = '//*[@id=\'restrict-%s\']'
     RESTRICTION_LABEL = '//*[@for=\'restrict-%s\']'
+
+    WORK_TIME_LINE = '//div[@data-name=\'date\']/*[contains(@class, \'campaign-setting__value\')]'
+    WORK_TIME_DATE_FROM = '//input[@data-name=\'from\']'
+    WORK_TIME_DATE_TO = '//input[@data-name=\'to\']'
 
     IMAGE_FILE = '../../img/logo.png'
     MARKET_LINK = 'https://play.google.com/store/apps/details?id=com.maxmpz.audioplayer'
@@ -92,14 +76,7 @@ class AdCreateForm(Form):
     def __init__(self, driver):
         super(AdCreateForm, self).__init__(driver)
 
-        self.slider = Slider(self.driver)
-
     def wait(self):
-        # WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
-        #     .until(expected_conditions
-        #            .visibility_of(self.driver
-        #                           .find_element_by_css_selector(self.MARKET_INPUT)))
-
         WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD).until(
             lambda d: d.find_element_by_css_selector(self.MARKET_INPUT)
         )
@@ -125,7 +102,37 @@ class AdCreateForm(Form):
         el = self.driver.find_element_by_xpath(self.RESTRICTION_RADIO % restriction)
         return el.get_attribute('checked')
 
-    def set_work_time(self, from_time, to_time):
+    def get_work_time_line_text(self):
+        text = self.driver.find_element_by_xpath(self.WORK_TIME_LINE).text
+        return text
+
+    def set_work_time_by_input(self, from_time, to_time):
+        line_el = self.driver.find_element_by_xpath(self.WORK_TIME_LINE)
+        from_el = self.driver.find_element_by_xpath(self.WORK_TIME_DATE_FROM)
+        to_el = self.driver.find_element_by_xpath(self.WORK_TIME_DATE_TO)
+
+        # uncollapse and wait for visibility
+        def uncollapse(driver):
+            try:
+                line_el.click()
+                return True
+            except WebDriverException:
+                return False
+
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
+            .until(uncollapse)
+
+        WebDriverWait(self.driver, Polling.TIMEOUT, Polling.PERIOD)\
+            .until(expected_conditions
+                   .visibility_of(from_el))
+
+        from_el.send_keys(from_time)
+        to_el.send_keys(to_time)
+
+        # unfocus inputs
+        line_el.click()
+
+    def set_work_time_by_date_picker(self, from_time, to_time):
         pass
 
     def set_image(self, file_name):

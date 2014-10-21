@@ -13,7 +13,7 @@ class RestrictionSuite(unittest.TestCase):
             desired_capabilities=getattr(DesiredCapabilities, browser).copy()
         )
 
-        self.create_page = common.get_create_page(self.driver).wait().configure()
+        self.create_page = common.get_create_page(self.driver).wait()
 
     def tearDown(self):
         self.driver.quit()
@@ -30,11 +30,13 @@ class RestrictionSuite(unittest.TestCase):
 
         self.assertEquals(expected_restriction_text, restriction_line_text)
 
-    def _test_restriction_on_edit_page(self, restriction):
+    def _test_restriction_saved(self, restriction):
         """
         Compares selected restriction on create page with those on edit page
         :param restriction: one of ('', '12+', '14+', '16+ '18+')
         """
+        self.create_page.configure()
+
         expected_restriction_text = self.create_page.ad_form.set_restriction(restriction)
 
         info_page = self.create_page.ad_form.submit()
@@ -45,14 +47,14 @@ class RestrictionSuite(unittest.TestCase):
         self.assertTrue(edit_page.ad_form.is_restriction_selected(restriction))
         self.assertEquals(expected_restriction_text, actual_restriction_text)
 
-    def test_restriction_none_on_edit_page(self):
+    def test_restriction_none_saved(self):
         """
         Tests for Not specified restriction
         """
-        self._test_restriction_on_edit_page('')
+        self._test_restriction_saved('')
 
-    def test_restriction_16_on_edit_page(self):
+    def test_restriction_16_saved(self):
         """
         Tests for 16+ restriction
         """
-        self._test_restriction_on_edit_page('16+')
+        self._test_restriction_saved('16+')

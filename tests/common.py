@@ -1,6 +1,6 @@
 import os
-from tests.objects.auth import AuthPage
-from tests.objects.create import CreatePage
+#from tests.objects.auth import AuthPage
+#from tests.objects.create import CreatePage
 
 DEFAULT_BROWSER = 'CHROME'
 GRID_URL = 'http://127.0.0.1:4444/wd/hub'
@@ -10,7 +10,8 @@ def get_create_page(driver):
     PASSWORD = os.environ['TTHA2PASSWORD']
     DOMAIN = '@bk.ru'
 
-    auth_page = AuthPage(driver)
+    import tests.objects.auth as auth
+    auth_page = auth.AuthPage(driver)
     auth_page.open()
 
     auth_form = auth_page.form
@@ -19,7 +20,8 @@ def get_create_page(driver):
     auth_form.set_password(PASSWORD)
     auth_form.submit()
 
-    create_page = CreatePage(driver)
+    import tests.objects.create as create
+    create_page = create.CreatePage(driver)
     create_page.open()
 
     return create_page
